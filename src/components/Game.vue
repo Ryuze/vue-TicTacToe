@@ -611,6 +611,8 @@ export default {
               this.fillMatrix(newIndexMatrix, newIndexItem);
               this.latestComputerMove.indexMatrix = newIndexMatrix;
               this.latestComputerMove.indexItem = newIndexItem;
+
+              this.stopGame()
             }
 
             break;
