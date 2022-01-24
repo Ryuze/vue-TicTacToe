@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h1 style="border-style: none none solid">Tic Tac Toe</h1>
     <Game />
   </div>
 </template>
