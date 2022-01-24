@@ -1,24 +1,5 @@
-# tictactoe
+# Simple Tic Tac Toe
 
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Step to setup
+1. Install node modules needed using ```npm install```
+2. Compile for development with ```npm run serve```
