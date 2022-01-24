@@ -1,13 +1,17 @@
 <template>
   <div>
-    <h1>{{ winner }}</h1>
+    <h1 v-if="winner == 'Draw'">{{ winner }}</h1>
+    <h1 v-else>Winner is {{ winner }}</h1>
     <div class="gameboard">
       <table>
         <tbody>
           <tr v-for="(matrix, indexMatrix) in matrixs" :key="matrix">
             <td v-for="(data, index) in matrix" :key="data">
-              <button @click="fillMatrix(indexMatrix, index)">
-                {{ data }}
+              <button
+                @click="fillMatrix(indexMatrix, index)"
+                :class="data.status == 'win' ? 'winning' : ''"
+              >
+                {{ data.value }}
               </button>
             </td>
           </tr>
@@ -36,19 +40,46 @@ export default {
     return {
       matrixs: [
         {
-          a: "",
-          b: "",
-          c: "",
+          a: {
+            value: "",
+            status: "",
+          },
+          b: {
+            value: "",
+            status: "",
+          },
+          c: {
+            value: "",
+            status: "",
+          },
         },
         {
-          d: "",
-          e: "",
-          f: "",
+          d: {
+            value: "",
+            status: "",
+          },
+          e: {
+            value: "",
+            status: "",
+          },
+          f: {
+            value: "",
+            status: "",
+          },
         },
         {
-          g: "",
-          h: "",
-          i: "",
+          g: {
+            value: "",
+            status: "",
+          },
+          h: {
+            value: "",
+            status: "",
+          },
+          i: {
+            value: "",
+            status: "",
+          },
         },
       ],
       start: false,
@@ -67,9 +98,9 @@ export default {
     fillMatrix(indexMatrix, index) {
       if (this.stop == false) {
         if (this.circle) {
-          if (this.matrixs[indexMatrix][index] == "") {
+          if (this.matrixs[indexMatrix][index].value == "") {
             this.start = true;
-            this.matrixs[indexMatrix][index] = "O";
+            this.matrixs[indexMatrix][index].value = "O";
             this.move -= 1;
             this.winningCondition();
             this.reverseTurn();
@@ -77,9 +108,9 @@ export default {
             alert("Invalid move, please choose unfilled spot only.");
           }
         } else if (this.cross) {
-          if (this.matrixs[indexMatrix][index] == "") {
+          if (this.matrixs[indexMatrix][index].value == "") {
             this.start = true;
-            this.matrixs[indexMatrix][index] = "X";
+            this.matrixs[indexMatrix][index].value = "X";
             this.move -= 1;
             this.winningCondition();
             this.reverseTurn();
@@ -93,156 +124,226 @@ export default {
     },
     winningCondition() {
       if (this.start && this.move != 0) {
-        if (
-          this.matrixs[0]["a"] == "O" &&
-          this.matrixs[0]["b"] == "O" &&
-          this.matrixs[0]["c"] == "O"
-        ) {
-          alert("Winner is O");
-          this.winner = "Winner is O";
-          this.start = false;
-          this.stop = true;
-        } else if (
-          this.matrixs[1]["d"] == "O" &&
-          this.matrixs[1]["e"] == "O" &&
-          this.matrixs[1]["f"] == "O"
-        ) {
-          alert("Winner is O");
-          this.winner = "Winner is O";
-          this.start = false;
-          this.stop = true;
-        } else if (
-          this.matrixs[2]["g"] == "O" &&
-          this.matrixs[2]["h"] == "O" &&
-          this.matrixs[2]["i"] == "O"
-        ) {
-          alert("Winner is O");
-          this.winner = "Winner is O";
-          this.start = false;
-          this.stop = true;
-        } else if (
-          this.matrixs[0]["a"] == "O" &&
-          this.matrixs[1]["d"] == "O" &&
-          this.matrixs[2]["g"] == "O"
-        ) {
-          alert("Winner is O");
-          this.winner = "Winner is O";
-          this.start = false;
-          this.stop = true;
-        } else if (
-          this.matrixs[0]["b"] == "O" &&
-          this.matrixs[1]["e"] == "O" &&
-          this.matrixs[2]["h"] == "O"
-        ) {
-          alert("Winner is O");
-          this.winner = "Winner is O";
-          this.start = false;
-          this.stop = true;
-        } else if (
-          this.matrixs[0]["c"] == "O" &&
-          this.matrixs[1]["f"] == "O" &&
-          this.matrixs[2]["i"] == "O"
-        ) {
-          alert("Winner is O");
-          this.winner = "Winner is O";
-          this.start = false;
-          this.stop = true;
-        } else if (
-          this.matrixs[0]["a"] == "O" &&
-          this.matrixs[1]["e"] == "O" &&
-          this.matrixs[2]["i"] == "O"
-        ) {
-          alert("Winner is O");
-          this.winner = "Winner is O";
-          this.start = false;
-          this.stop = true;
-        } else if (
-          this.matrixs[0]["c"] == "O" &&
-          this.matrixs[1]["e"] == "O" &&
-          this.matrixs[2]["g"] == "O"
-        ) {
-          alert("Winner is O");
-          this.winner = "Winner is O";
-          this.start = false;
-          this.stop = true;
-        }
-
-        if (
-          this.matrixs[0]["a"] == "X" &&
-          this.matrixs[0]["b"] == "X" &&
-          this.matrixs[0]["c"] == "X"
-        ) {
-          alert("Winner is X");
-          this.winner = "Winner is X";
-          this.start = false;
-          this.stop = true;
-        } else if (
-          this.matrixs[1]["d"] == "X" &&
-          this.matrixs[1]["e"] == "X" &&
-          this.matrixs[1]["f"] == "X"
-        ) {
-          alert("Winner is X");
-          this.winner = "Winner is X";
-          this.start = false;
-          this.stop = true;
-        } else if (
-          this.matrixs[2]["g"] == "X" &&
-          this.matrixs[2]["h"] == "X" &&
-          this.matrixs[2]["i"] == "X"
-        ) {
-          alert("Winner is X");
-          this.winner = "Winner is X";
-          this.start = false;
-          this.stop = true;
-        } else if (
-          this.matrixs[0]["a"] == "X" &&
-          this.matrixs[1]["d"] == "X" &&
-          this.matrixs[2]["g"] == "X"
-        ) {
-          alert("Winner is X");
-          this.winner = "Winner is X";
-          this.start = false;
-          this.stop = true;
-        } else if (
-          this.matrixs[0]["b"] == "X" &&
-          this.matrixs[1]["e"] == "X" &&
-          this.matrixs[2]["h"] == "X"
-        ) {
-          alert("Winner is X");
-          this.winner = "Winner is X";
-          this.start = false;
-          this.stop = true;
-        } else if (
-          this.matrixs[0]["c"] == "X" &&
-          this.matrixs[1]["f"] == "X" &&
-          this.matrixs[2]["i"] == "X"
-        ) {
-          alert("Winner is X");
-          this.winner = "Winner is X";
-          this.start = false;
-          this.stop = true;
-        } else if (
-          this.matrixs[0]["a"] == "X" &&
-          this.matrixs[1]["e"] == "X" &&
-          this.matrixs[2]["i"] == "X"
-        ) {
-          alert("Winner is X");
-          this.winner = "Winner is X";
-          this.start = false;
-          this.stop = true;
-        } else if (
-          this.matrixs[0]["c"] == "X" &&
-          this.matrixs[1]["e"] == "X" &&
-          this.matrixs[2]["g"] == "X"
-        ) {
-          alert("Winner is X");
-          this.winner = "Winner is X";
-          this.start = false;
-          this.stop = true;
+        if (this.checkCondition()) {
+          alert("Winner is " + this.winner);
+          this.changeColorWinner();
+          this.stopGame();
         }
       } else {
         alert("Draw");
         this.winner = "Draw";
+      }
+    },
+    stopGame() {
+      this.start = false;
+      this.stop = true;
+    },
+    changeColorWinner() {
+      if (
+        (this.matrixs[0]["a"].value == "O" &&
+          this.matrixs[0]["b"].value == "O" &&
+          this.matrixs[0]["c"].value == "O") ||
+        (this.matrixs[0]["a"].value == "X" &&
+          this.matrixs[0]["b"].value == "X" &&
+          this.matrixs[0]["c"].value == "X")
+      ) {
+        this.matrixs[0]["a"].status = "win";
+        this.matrixs[0]["b"].status = "win";
+        this.matrixs[0]["c"].status = "win";
+      } else if (
+        (this.matrixs[1]["d"].value == "O" &&
+          this.matrixs[1]["e"].value == "O" &&
+          this.matrixs[1]["f"].value == "O") ||
+        (this.matrixs[1]["d"].value == "X" &&
+          this.matrixs[1]["e"].value == "X" &&
+          this.matrixs[1]["f"].value == "X")
+      ) {
+        this.matrixs[1]["d"].status = "win";
+        this.matrixs[1]["e"].status = "win";
+        this.matrixs[1]["f"].status = "win";
+      } else if (
+        (this.matrixs[2]["g"].value == "O" &&
+          this.matrixs[2]["h"].value == "O" &&
+          this.matrixs[2]["i"].value == "O") ||
+        (this.matrixs[2]["g"].value == "X" &&
+          this.matrixs[2]["h"].value == "X" &&
+          this.matrixs[2]["i"].value == "X")
+      ) {
+        this.matrixs[2]["g"].status = "win";
+        this.matrixs[2]["h"].status = "win";
+        this.matrixs[2]["i"].status = "win";
+      } else if (
+        (this.matrixs[0]["a"].value == "O" &&
+          this.matrixs[1]["d"].value == "O" &&
+          this.matrixs[2]["g"].value == "O") ||
+        (this.matrixs[0]["a"].value == "X" &&
+          this.matrixs[1]["d"].value == "X" &&
+          this.matrixs[2]["g"].value == "X")
+      ) {
+        this.matrixs[0]["a"].status = "win";
+        this.matrixs[1]["d"].status = "win";
+        this.matrixs[2]["g"].status = "win";
+      } else if (
+        (this.matrixs[0]["b"].value == "O" &&
+          this.matrixs[1]["e"].value == "O" &&
+          this.matrixs[2]["h"].value == "O") ||
+        (this.matrixs[0]["b"].value == "X" &&
+          this.matrixs[1]["e"].value == "X" &&
+          this.matrixs[2]["h"].value == "X")
+      ) {
+        this.matrixs[0]["b"].status = "win";
+        this.matrixs[1]["e"].status = "win";
+        this.matrixs[2]["h"].status = "win";
+      } else if (
+        (this.matrixs[0]["c"].value == "O" &&
+          this.matrixs[1]["f"].value == "O" &&
+          this.matrixs[2]["i"].value == "O") ||
+        (this.matrixs[0]["c"].value == "X" &&
+          this.matrixs[1]["f"].value == "X" &&
+          this.matrixs[2]["i"].value == "X")
+      ) {
+        this.matrixs[0]["c"].status = "win";
+        this.matrixs[1]["f"].status = "win";
+        this.matrixs[2]["i"].status = "win";
+      } else if (
+        (this.matrixs[0]["a"].value == "O" &&
+          this.matrixs[1]["e"].value == "O" &&
+          this.matrixs[2]["i"].value == "O") ||
+        (this.matrixs[0]["a"].value == "X" &&
+          this.matrixs[1]["e"].value == "X" &&
+          this.matrixs[2]["i"].value == "X")
+      ) {
+        this.matrixs[0]["a"].status = "win";
+        this.matrixs[1]["e"].status = "win";
+        this.matrixs[2]["i"].status = "win";
+      } else if (
+        (this.matrixs[0]["c"].value == "O" &&
+          this.matrixs[1]["e"].value == "O" &&
+          this.matrixs[2]["g"].value == "O") ||
+        (this.matrixs[0]["c"].value == "X" &&
+          this.matrixs[1]["e"].value == "X" &&
+          this.matrixs[2]["g"].value == "X")
+      ) {
+        this.matrixs[0]["c"].status = "win";
+        this.matrixs[1]["e"].status = "win";
+        this.matrixs[2]["g"].status = "win";
+      }
+    },
+    checkCondition() {
+      if (
+        this.matrixs[0]["a"].value == "O" &&
+        this.matrixs[0]["b"].value == "O" &&
+        this.matrixs[0]["c"].value == "O"
+      ) {
+        this.winner = "O";
+        return true;
+      } else if (
+        this.matrixs[1]["d"].value == "O" &&
+        this.matrixs[1]["e"].value == "O" &&
+        this.matrixs[1]["f"].value == "O"
+      ) {
+        this.winner = "O";
+        return true;
+      } else if (
+        this.matrixs[2]["g"].value == "O" &&
+        this.matrixs[2]["h"].value == "O" &&
+        this.matrixs[2]["i"].value == "O"
+      ) {
+        this.winner = "O";
+        return true;
+      } else if (
+        this.matrixs[0]["a"].value == "O" &&
+        this.matrixs[1]["d"].value == "O" &&
+        this.matrixs[2]["g"].value == "O"
+      ) {
+        this.winner = "O";
+        return true;
+      } else if (
+        this.matrixs[0]["b"].value == "O" &&
+        this.matrixs[1]["e"].value == "O" &&
+        this.matrixs[2]["h"].value == "O"
+      ) {
+        this.winner = "O";
+        return true;
+      } else if (
+        this.matrixs[0]["c"].value == "O" &&
+        this.matrixs[1]["f"].value == "O" &&
+        this.matrixs[2]["i"].value == "O"
+      ) {
+        this.winner = "O";
+        return true;
+      } else if (
+        this.matrixs[0]["a"].value == "O" &&
+        this.matrixs[1]["e"].value == "O" &&
+        this.matrixs[2]["i"].value == "O"
+      ) {
+        this.winner = "O";
+        return true;
+      } else if (
+        this.matrixs[0]["c"].value == "O" &&
+        this.matrixs[1]["e"].value == "O" &&
+        this.matrixs[2]["g"].value == "O"
+      ) {
+        this.winner = "O";
+        return true;
+      }
+
+      if (
+        this.matrixs[0]["a"].value == "X" &&
+        this.matrixs[0]["b"].value == "X" &&
+        this.matrixs[0]["c"].value == "X"
+      ) {
+        this.winner = "X";
+        return true;
+      } else if (
+        this.matrixs[1]["d"].value == "X" &&
+        this.matrixs[1]["e"].value == "X" &&
+        this.matrixs[1]["f"].value == "X"
+      ) {
+        this.winner = "X";
+        return true;
+      } else if (
+        this.matrixs[2]["g"].value == "X" &&
+        this.matrixs[2]["h"].value == "X" &&
+        this.matrixs[2]["i"].value == "X"
+      ) {
+        this.winner = "X";
+        return true;
+      } else if (
+        this.matrixs[0]["a"].value == "X" &&
+        this.matrixs[1]["d"].value == "X" &&
+        this.matrixs[2]["g"].value == "X"
+      ) {
+        this.winner = "X";
+        return true;
+      } else if (
+        this.matrixs[0]["b"].value == "X" &&
+        this.matrixs[1]["e"].value == "X" &&
+        this.matrixs[2]["h"].value == "X"
+      ) {
+        this.winner = "X";
+        return true;
+      } else if (
+        this.matrixs[0]["c"].value == "X" &&
+        this.matrixs[1]["f"].value == "X" &&
+        this.matrixs[2]["i"].value == "X"
+      ) {
+        this.winner = "X";
+        return true;
+      } else if (
+        this.matrixs[0]["a"].value == "X" &&
+        this.matrixs[1]["e"].value == "X" &&
+        this.matrixs[2]["i"].value == "X"
+      ) {
+        this.winner = "X";
+        return true;
+      } else if (
+        this.matrixs[0]["c"].value == "X" &&
+        this.matrixs[1]["e"].value == "X" &&
+        this.matrixs[2]["g"].value == "X"
+      ) {
+        this.winner = "X";
+        return true;
       }
     },
     startOver() {
@@ -270,5 +371,10 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.winning {
+  background-color: green;
+  color: white;
 }
 </style>
