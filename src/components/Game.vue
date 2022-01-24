@@ -97,28 +97,21 @@ export default {
     },
     fillMatrix(indexMatrix, index) {
       if (this.stop == false) {
-        if (this.circle) {
-          if (this.matrixs[indexMatrix][index].value == "") {
-            this.start = true;
+        this.start = true;
+        if (this.matrixs[indexMatrix][index].value == "") {
+          if (this.circle) {
             this.matrixs[indexMatrix][index].value = "O";
-            this.move -= 1;
-            this.winningCondition();
-            this.reverseTurn();
-          } else {
-            alert("Invalid move, please choose unfilled spot only.");
-          }
-        } else if (this.cross) {
-          if (this.matrixs[indexMatrix][index].value == "") {
-            this.start = true;
+          } else if (this.cross) {
             this.matrixs[indexMatrix][index].value = "X";
-            this.move -= 1;
-            this.winningCondition();
-            this.reverseTurn();
           } else {
-            alert("Invalid move, please choose unfilled spot only.");
+            console.log("Something went wrong");
           }
+
+          this.move -= 1;
+          this.winningCondition();
+          this.reverseTurn();
         } else {
-          console.log("Something went wrong");
+          alert("Invalid move, please choose unfilled spot only.");
         }
       }
     },
