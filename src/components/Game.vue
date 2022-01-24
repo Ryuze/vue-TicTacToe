@@ -15,7 +15,17 @@
       </table>
     </div>
     <div>
-      <button @click="startOver" style="background-color: green; color: white; margin-top: 1em; border-radius: 20%">Reload</button>
+      <button
+        @click="startOver"
+        style="
+          background-color: green;
+          color: white;
+          margin-top: 1em;
+          border-radius: 20%;
+        "
+      >
+        Reload
+      </button>
     </div>
   </div>
 </template>
@@ -45,6 +55,7 @@ export default {
       stop: false,
       cross: false,
       circle: true,
+      move: 9,
       winner: "",
     };
   },
@@ -56,22 +67,32 @@ export default {
     fillMatrix(indexMatrix, index) {
       if (this.stop == false) {
         if (this.circle) {
-          this.start = true;
-          this.matrixs[indexMatrix][index] = "O";
-          this.winningCondition();
-          this.reverseTurn();
+          if (this.matrixs[indexMatrix][index] == "") {
+            this.start = true;
+            this.matrixs[indexMatrix][index] = "O";
+            this.move -= 1;
+            this.winningCondition();
+            this.reverseTurn();
+          } else {
+            alert("Invalid move, please choose unfilled spot only.");
+          }
         } else if (this.cross) {
-          this.start = true;
-          this.matrixs[indexMatrix][index] = "X";
-          this.winningCondition();
-          this.reverseTurn();
+          if (this.matrixs[indexMatrix][index] == "") {
+            this.start = true;
+            this.matrixs[indexMatrix][index] = "X";
+            this.move -= 1;
+            this.winningCondition();
+            this.reverseTurn();
+          } else {
+            alert("Invalid move, please choose unfilled spot only.");
+          }
         } else {
           console.log("Something went wrong");
         }
       }
     },
     winningCondition() {
-      if (this.start) {
+      if (this.start && this.move != 0) {
         if (
           this.matrixs[0]["a"] == "O" &&
           this.matrixs[0]["b"] == "O" &&
@@ -219,6 +240,9 @@ export default {
           this.start = false;
           this.stop = true;
         }
+      } else {
+        alert("Draw");
+        this.winner = "Draw";
       }
     },
     startOver() {
@@ -243,8 +267,8 @@ button {
 }
 
 .gameboard {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
