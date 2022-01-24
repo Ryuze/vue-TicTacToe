@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1 v-if="winner == 'Draw'">{{ winner }}</h1>
-    <h1 v-else>Winner is {{ winner }}</h1>
+    <h1 v-else-if="winner == 'O' || winner == 'X'">Winner is {{ winner }}</h1>
     <div class="gameboard">
       <table>
         <tbody>
@@ -30,6 +30,15 @@
       >
         Reload
       </button>
+    </div>
+    <div v-if="stop == false">
+      <h3>Now is {{ circle ? "O" : cross ? "X" : "" }} turn</h3>
+    </div>
+    <div v-else-if="winner == 'Draw'">
+      <h3>Draw? Let's try again to find out who is the true winner!</h3>
+    </div>
+    <div v-else>
+      <h3>Congratulation</h3>
     </div>
   </div>
 </template>
@@ -125,6 +134,7 @@ export default {
       } else {
         alert("Draw");
         this.winner = "Draw";
+        this.stopGame();
       }
     },
     stopGame() {
