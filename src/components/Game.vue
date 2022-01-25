@@ -7,10 +7,7 @@
         <tbody>
           <tr v-for="(matrix, indexMatrix) in matrixs" :key="matrix.name">
             <td v-for="(data, indexItem) in matrix" :key="data">
-              <button
-                @click="userTurn(indexMatrix, indexItem)"
-                :class="data.details.status == 'win' ? 'winning' : ''"
-              >
+              <button @click="userTurn(indexMatrix, indexItem)">
                 {{ data.details.value }}
               </button>
             </td>
