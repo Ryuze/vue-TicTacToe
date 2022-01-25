@@ -5,20 +5,10 @@
     <div class="gameboard">
       <table>
         <tbody>
-          <!-- <tr v-for="(matrix, indexMatrix) in matrixs" :key="matrix">
-            <td v-for="(data, index) in matrix" :key="data">
-              <button
-                @click="fillMatrix(indexMatrix, index)"
-                :class="data.status == 'win' ? 'winning' : ''"
-              >
-                {{ data.value }}
-              </button>
-            </td>
-          </tr> -->
           <tr v-for="(matrix, indexMatrix) in matrixs" :key="matrix.name">
-            <td v-for="(data, index) in matrix" :key="data">
+            <td v-for="(data, indexItem) in matrix" :key="data">
               <button
-                @click="fillMatrix(indexMatrix, index)"
+                @click="userTurn(indexMatrix, indexItem)"
                 :class="data.details.status == 'win' ? 'winning' : ''"
               >
                 {{ data.details.value }}
@@ -133,16 +123,14 @@ export default {
       cross: false,
       circle: true,
       move: 9,
-      firstPlayerMove: {
-        indexMatrix: 0,
-        indexItem: 0,
-      },
-      indexMatrix: 0,
-      indexItem: 0,
       latestComputerMove: {
+        index: 0,
+      },
+      latestUserMove: {
         indexMatrix: 0,
         indexItem: 0,
       },
+      firstUserMove: 0,
       naturalizationData: [
         {
           indexMatrix: 0,
@@ -186,12 +174,12 @@ export default {
   },
   mounted() {
     this.start = true;
-    this.fillMatrix(1, 1);
+    this.fillBoard(8);
   },
   watch: {
     matrixs: {
       handler() {
-        this.computerTurn(this.move, this.indexMatrix, this.indexItem);
+        this.compTurn(this.move);
       },
       deep: true,
     },
@@ -201,490 +189,132 @@ export default {
       this.cross = !this.cross;
       this.circle = !this.circle;
     },
-    fillMatrix(indexMatrix, index) {
-      if (this.stop == false) {
-        this.start = true;
-        if (this.matrixs[indexMatrix][index].details.value == "") {
-          if (this.circle) {
-            this.matrixs[indexMatrix][index].details.value = "O";
-          } else if (this.cross) {
-            this.matrixs[indexMatrix][index].details.value = "X";
-          } else {
-            console.log("Something went wrong");
-          }
-
-          this.move -= 1;
-          this.indexMatrix = indexMatrix;
-          this.indexItem = index;
-          this.winningCondition();
-          this.reverseTurn();
-        } else {
-          alert("Invalid move, please choose unfilled spot only.");
-        }
-      }
-    },
-    winningCondition() {
-      if (this.move >= 0) {
-        if (this.checkCondition()) {
-          alert("Winner is " + this.winner);
-          this.changeColorWinner();
-          this.stopGame();
-        } else if (this.move == 0 && this.winner == "") {
-          alert("Draw");
-          this.winner = "Draw";
-          this.stopGame();
-        }
-      }
-    },
     stopGame() {
       this.start = false;
       this.stop = true;
     },
-    changeColorWinner() {
-      if (
-        (this.matrixs[0][0].details.value == "O" &&
-          this.matrixs[0][1].details.value == "O" &&
-          this.matrixs[0][2].details.value == "O") ||
-        (this.matrixs[0][0].details.value == "X" &&
-          this.matrixs[0][1].details.value == "X" &&
-          this.matrixs[0][2].details.value == "X")
-      ) {
-        this.matrixs[0][0].details.status = "win";
-        this.matrixs[0][1].details.status = "win";
-        this.matrixs[0][2].details.status = "win";
-      } else if (
-        (this.matrixs[1][0].details.value == "O" &&
-          this.matrixs[1][1].details.value == "O" &&
-          this.matrixs[1][2].details.value == "O") ||
-        (this.matrixs[1][0].details.value == "X" &&
-          this.matrixs[1][1].details.value == "X" &&
-          this.matrixs[1][2].details.value == "X")
-      ) {
-        this.matrixs[1][0].details.status = "win";
-        this.matrixs[1][1].details.status = "win";
-        this.matrixs[1][2].details.status = "win";
-      } else if (
-        (this.matrixs[2][0].details.value == "O" &&
-          this.matrixs[2][1].details.value == "O" &&
-          this.matrixs[2][2].details.value == "O") ||
-        (this.matrixs[2][0].details.value == "X" &&
-          this.matrixs[2][1].details.value == "X" &&
-          this.matrixs[2][2].details.value == "X")
-      ) {
-        this.matrixs[2][0].details.status = "win";
-        this.matrixs[2][1].details.status = "win";
-        this.matrixs[2][2].details.status = "win";
-      } else if (
-        (this.matrixs[0][0].details.value == "O" &&
-          this.matrixs[1][0].details.value == "O" &&
-          this.matrixs[2][0].details.value == "O") ||
-        (this.matrixs[0][0].details.value == "X" &&
-          this.matrixs[1][0].details.value == "X" &&
-          this.matrixs[2][0].details.value == "X")
-      ) {
-        this.matrixs[0][0].details.status = "win";
-        this.matrixs[1][0].details.status = "win";
-        this.matrixs[2][0].details.status = "win";
-      } else if (
-        (this.matrixs[0][1].details.value == "O" &&
-          this.matrixs[1][1].details.value == "O" &&
-          this.matrixs[2][1].details.value == "O") ||
-        (this.matrixs[0][1].details.value == "X" &&
-          this.matrixs[1][1].details.value == "X" &&
-          this.matrixs[2][1].details.value == "X")
-      ) {
-        this.matrixs[0][1].details.status = "win";
-        this.matrixs[1][1].details.status = "win";
-        this.matrixs[2][1].details.status = "win";
-      } else if (
-        (this.matrixs[0][2].details.value == "O" &&
-          this.matrixs[1][2].details.value == "O" &&
-          this.matrixs[2][2].details.value == "O") ||
-        (this.matrixs[0][2].details.value == "X" &&
-          this.matrixs[1][2].details.value == "X" &&
-          this.matrixs[2][2].details.value == "X")
-      ) {
-        this.matrixs[0][2].details.status = "win";
-        this.matrixs[1][2].details.status = "win";
-        this.matrixs[2][2].details.status = "win";
-      } else if (
-        (this.matrixs[0][0].details.value == "O" &&
-          this.matrixs[1][1].details.value == "O" &&
-          this.matrixs[2][2].details.value == "O") ||
-        (this.matrixs[0][0].details.value == "X" &&
-          this.matrixs[1][1].details.value == "X" &&
-          this.matrixs[2][2].details.value == "X")
-      ) {
-        this.matrixs[0][0].details.status = "win";
-        this.matrixs[1][1].details.status = "win";
-        this.matrixs[2][2].details.status = "win";
-      } else if (
-        (this.matrixs[0][2].details.value == "O" &&
-          this.matrixs[1][1].details.value == "O" &&
-          this.matrixs[2][0].details.value == "O") ||
-        (this.matrixs[0][2].details.value == "X" &&
-          this.matrixs[1][1].details.value == "X" &&
-          this.matrixs[2][0].details.value == "X")
-      ) {
-        this.matrixs[0][2].details.status = "win";
-        this.matrixs[1][1].details.status = "win";
-        this.matrixs[2][0].details.status = "win";
-      }
-    },
-    checkCondition() {
-      if (
-        this.matrixs[0][0].details.value == "O" &&
-        this.matrixs[0][1].details.value == "O" &&
-        this.matrixs[0][2].details.value == "O"
-      ) {
-        this.winner = "O";
-        return true;
-      } else if (
-        this.matrixs[1][0].details.value == "O" &&
-        this.matrixs[1][1].details.value == "O" &&
-        this.matrixs[1][2].details.value == "O"
-      ) {
-        this.winner = "O";
-        return true;
-      } else if (
-        this.matrixs[2][0].details.value == "O" &&
-        this.matrixs[2][1].details.value == "O" &&
-        this.matrixs[2][2].details.value == "O"
-      ) {
-        this.winner = "O";
-        return true;
-      } else if (
-        this.matrixs[0][0].details.value == "O" &&
-        this.matrixs[1][0].details.value == "O" &&
-        this.matrixs[2][0].details.value == "O"
-      ) {
-        this.winner = "O";
-        return true;
-      } else if (
-        this.matrixs[0][1].details.value == "O" &&
-        this.matrixs[1][1].details.value == "O" &&
-        this.matrixs[2][1].details.value == "O"
-      ) {
-        this.winner = "O";
-        return true;
-      } else if (
-        this.matrixs[0][2].details.value == "O" &&
-        this.matrixs[1][2].details.value == "O" &&
-        this.matrixs[2][2].details.value == "O"
-      ) {
-        this.winner = "O";
-        return true;
-      } else if (
-        this.matrixs[0][0].details.value == "O" &&
-        this.matrixs[1][1].details.value == "O" &&
-        this.matrixs[2][2].details.value == "O"
-      ) {
-        this.winner = "O";
-        return true;
-      } else if (
-        this.matrixs[0][2].details.value == "O" &&
-        this.matrixs[1][1].details.value == "O" &&
-        this.matrixs[2][0].details.value == "O"
-      ) {
-        this.winner = "O";
-        return true;
-      }
-
-      if (
-        this.matrixs[0][0].details.value == "X" &&
-        this.matrixs[0][1].details.value == "X" &&
-        this.matrixs[0][2].details.value == "X"
-      ) {
-        this.winner = "X";
-        return true;
-      } else if (
-        this.matrixs[1][0].details.value == "X" &&
-        this.matrixs[1][1].details.value == "X" &&
-        this.matrixs[1][2].details.value == "X"
-      ) {
-        this.winner = "X";
-        return true;
-      } else if (
-        this.matrixs[2][0].details.value == "X" &&
-        this.matrixs[2][1].details.value == "X" &&
-        this.matrixs[2][2].details.value == "X"
-      ) {
-        this.winner = "X";
-        return true;
-      } else if (
-        this.matrixs[0][0].details.value == "X" &&
-        this.matrixs[1][0].details.value == "X" &&
-        this.matrixs[2][0].details.value == "X"
-      ) {
-        this.winner = "X";
-        return true;
-      } else if (
-        this.matrixs[0][1].details.value == "X" &&
-        this.matrixs[1][1].details.value == "X" &&
-        this.matrixs[2][1].details.value == "X"
-      ) {
-        this.winner = "X";
-        return true;
-      } else if (
-        this.matrixs[0][2].details.value == "X" &&
-        this.matrixs[1][2].details.value == "X" &&
-        this.matrixs[2][2].details.value == "X"
-      ) {
-        this.winner = "X";
-        return true;
-      } else if (
-        this.matrixs[0][0].details.value == "X" &&
-        this.matrixs[1][1].details.value == "X" &&
-        this.matrixs[2][2].details.value == "X"
-      ) {
-        this.winner = "X";
-        return true;
-      } else if (
-        this.matrixs[0][2].details.value == "X" &&
-        this.matrixs[1][1].details.value == "X" &&
-        this.matrixs[2][0].details.value == "X"
-      ) {
-        this.winner = "X";
-        return true;
-      }
-    },
     startOver() {
       location.reload();
     },
-    computerTurn(move, indexMatrix, indexItem) {
+    compTurn(move) {
       if (this.stop == false) {
+        let { userIndex } = this.searchIndex;
         switch (move) {
-          case 7: {
-            let userNaturalizationIndex = 0;
-            this.firstPlayerMove.indexMatrix = this.indexMatrix;
-            this.firstPlayerMove.indexItem = this.indexItem;
-
-            for (let item in this.naturalizationData) {
-              if (
-                indexMatrix == this.naturalizationData[item].indexMatrix &&
-                indexItem == this.naturalizationData[item].indexItem
-              ) {
-                userNaturalizationIndex = item;
-              }
-            }
-
-            let sanitization = this.moveSanitazion(userNaturalizationIndex) + 1;
-
-            if (sanitization == 8) {
-              sanitization = 0;
-            }
-
-            const newIndexMatrix =
-              this.naturalizationData[sanitization].indexMatrix;
-            const newIndexItem =
-              this.naturalizationData[sanitization].indexItem;
-
-            this.fillMatrix(newIndexMatrix, newIndexItem);
-            this.latestComputerMove.indexMatrix = newIndexMatrix;
-            this.latestComputerMove.indexItem = newIndexItem;
-
+          case 7:
+            parseInt(userIndex) + 1 == 8
+              ? this.fillBoard(this.moveSanitazion(userIndex + 2))
+              : this.fillBoard(this.moveSanitazion(userIndex) + 1);
+            this.firstUserMove = parseInt(userIndex);
             break;
-          }
           case 5: {
-            let userNaturalizationIndex = 0;
-            let computerNaturalizationIndex = 0;
-
-            for (let item in this.naturalizationData) {
-              if (
-                this.indexMatrix == this.naturalizationData[item].indexMatrix &&
-                this.indexItem == this.naturalizationData[item].indexItem
-              ) {
-                userNaturalizationIndex = item;
-              }
-
-              if (
-                this.latestComputerMove.indexMatrix ==
-                  this.naturalizationData[item].indexMatrix &&
-                this.latestComputerMove.indexItem ==
-                  this.naturalizationData[item].indexItem
-              ) {
-                computerNaturalizationIndex = item;
-              }
-            }
-
-            let userSanitization = this.moveSanitazion(userNaturalizationIndex);
-            let computerSanitization = this.moveSanitazion(
-              computerNaturalizationIndex
-            );
-
             if (
-              userSanitization == this.moveSanitazion(computerSanitization + 4)
+              this.moveSanitazion(parseInt(userIndex)) ==
+              this.moveSanitazion(this.latestComputerMove.index + 4)
             ) {
-              computerSanitization += 2;
-
-              if (computerSanitization >= 8) {
-                computerSanitization %= 8;
-              }
-
-              const newIndexMatrix =
-                this.naturalizationData[computerSanitization].indexMatrix;
-              const newIndexItem =
-                this.naturalizationData[computerSanitization].indexItem;
-
-              this.fillMatrix(newIndexMatrix, newIndexItem);
-              this.latestComputerMove.indexMatrix = newIndexMatrix;
-              this.latestComputerMove.indexItem = newIndexItem;
+              this.fillBoard(
+                this.moveSanitazion(this.latestComputerMove.index + 2)
+              );
             } else {
-              computerSanitization += 4;
-
-              if (computerSanitization >= 8) {
-                computerSanitization %= 8;
-              }
-
-              const newIndexMatrix =
-                this.naturalizationData[computerSanitization].indexMatrix;
-              const newIndexItem =
-                this.naturalizationData[computerSanitization].indexItem;
-
-              this.fillMatrix(newIndexMatrix, newIndexItem);
-              this.latestComputerMove.indexMatrix = newIndexMatrix;
-              this.latestComputerMove.indexItem = newIndexItem;
+              this.winner = "O";
+              this.fillBoard(
+                this.moveSanitazion(this.latestComputerMove.index + 4)
+              );
             }
-
             break;
           }
           case 3: {
-            let computerNaturalizationIndex = 0;
-            let firstUserNaturalizationIndex = 0;
-
-            for (let item in this.naturalizationData) {
-              if (
-                this.latestComputerMove.indexMatrix ==
-                  this.naturalizationData[item].indexMatrix &&
-                this.latestComputerMove.indexItem ==
-                  this.naturalizationData[item].indexItem
-              ) {
-                computerNaturalizationIndex = item;
+            if (
+              this.moveSanitazion(parseInt(userIndex)) ==
+              this.moveSanitazion(this.latestComputerMove.index + 4)
+            ) {
+              if (this.firstUserMove % 2 == 0) {
+                this.fillBoard(
+                  this.moveSanitazion(this.latestComputerMove.index + 3)
+                );
+              } else {
+                this.winner = "O";
+                this.fillBoard(
+                  this.moveSanitazion(this.latestComputerMove.index + 7)
+                );
               }
-
-              if (
-                this.firstPlayerMove.indexMatrix ==
-                  this.naturalizationData[item].indexMatrix &&
-                this.firstPlayerMove.indexItem ==
-                  this.naturalizationData[item].indexItem
-              ) {
-                firstUserNaturalizationIndex = item;
-              }
-            }
-
-            let computerSanitization = this.moveSanitazion(
-              computerNaturalizationIndex
-            );
-            let firstUserSanitization = this.moveSanitazion(
-              firstUserNaturalizationIndex
-            );
-
-            if (firstUserSanitization % 2 == 0) {
-              computerSanitization += 3;
-
-              if (computerSanitization >= 8) {
-                computerSanitization %= 8;
-              }
-
-              const newIndexMatrix =
-                this.naturalizationData[computerSanitization].indexMatrix;
-              const newIndexItem =
-                this.naturalizationData[computerSanitization].indexItem;
-
-              this.fillMatrix(newIndexMatrix, newIndexItem);
-              this.latestComputerMove.indexMatrix = newIndexMatrix;
-              this.latestComputerMove.indexItem = newIndexItem;
             } else {
-              computerSanitization += 7;
-              console.log(computerSanitization);
-
-              if (computerSanitization >= 8) {
-                computerSanitization %= 8;
-                console.log(computerSanitization);
-              }
-
-              const newIndexMatrix =
-                this.naturalizationData[computerSanitization].indexMatrix;
-              const newIndexItem =
-                this.naturalizationData[computerSanitization].indexItem;
-
-              this.fillMatrix(newIndexMatrix, newIndexItem);
-              this.latestComputerMove.indexMatrix = newIndexMatrix;
-              this.latestComputerMove.indexItem = newIndexItem;
-
-              this.stopGame()
+              this.winner = "O";
+              this.fillBoard(
+                this.moveSanitazion(this.latestComputerMove.index + 4)
+              );
             }
-
             break;
           }
           case 1: {
-            let userNaturalizationIndex = 0;
-            let computerNaturalizationIndex = 0;
-
-            for (let item in this.naturalizationData) {
-              if (
-                this.indexMatrix == this.naturalizationData[item].indexMatrix &&
-                this.indexItem == this.naturalizationData[item].indexItem
-              ) {
-                userNaturalizationIndex = item;
-              }
-
-              if (
-                this.latestComputerMove.indexMatrix ==
-                  this.naturalizationData[item].indexMatrix &&
-                this.latestComputerMove.indexItem ==
-                  this.naturalizationData[item].indexItem
-              ) {
-                computerNaturalizationIndex = item;
-              }
-            }
-
-            let userSanitization = this.moveSanitazion(userNaturalizationIndex);
-            let computerSanitization = this.moveSanitazion(
-              computerNaturalizationIndex
-            );
-
             if (
-              userSanitization == this.moveSanitazion(computerSanitization + 4)
+              this.moveSanitazion(parseInt(userIndex)) ==
+              this.moveSanitazion(this.latestComputerMove.index + 4)
             ) {
-              computerSanitization += 6;
-
-              if (computerSanitization >= 8) {
-                computerSanitization %= 8;
-              }
-
-              const newIndexMatrix =
-                this.naturalizationData[computerSanitization].indexMatrix;
-              const newIndexItem =
-                this.naturalizationData[computerSanitization].indexItem;
-
-              this.fillMatrix(newIndexMatrix, newIndexItem);
-              this.latestComputerMove.indexMatrix = newIndexMatrix;
-              this.latestComputerMove.indexItem = newIndexItem;
+              this.winner = "Draw";
+              this.fillBoard(
+                this.moveSanitazion(this.latestComputerMove.index + 6)
+              );
             } else {
-              computerSanitization += 4;
-
-              if (computerSanitization >= 8) {
-                computerSanitization %= 8;
-              }
-
-              const newIndexMatrix =
-                this.naturalizationData[computerSanitization].indexMatrix;
-              const newIndexItem =
-                this.naturalizationData[computerSanitization].indexItem;
-
-              this.fillMatrix(newIndexMatrix, newIndexItem);
-              this.latestComputerMove.indexMatrix = newIndexMatrix;
-              this.latestComputerMove.indexItem = newIndexItem;
+              this.winner = "O";
+              this.fillBoard(
+                this.moveSanitazion(this.latestComputerMove.index + 4)
+              );
             }
-
-            break;
           }
         }
       }
     },
+    fillBoard(index) {
+      if (this.start) {
+        const indexMatrix = this.naturalizationData[index].indexMatrix;
+        const indexItem = this.naturalizationData[index].indexItem;
+        if (this.circle) {
+          this.matrixs[indexMatrix][indexItem].details.value = "O";
+          this.latestComputerMove.index = index;
+        } else if (this.cross) {
+          this.matrixs[indexMatrix][indexItem].details.value = "X";
+        }
+
+        this.move -= 1;
+        this.winningNotification();
+        this.reverseTurn();
+      }
+    },
+    userTurn(indexMatrix, indexItem) {
+      this.latestUserMove.indexMatrix = indexMatrix;
+      this.latestUserMove.indexItem = indexItem;
+      let { userIndex } = this.searchIndex;
+
+      this.fillBoard(userIndex);
+    },
     moveSanitazion(number) {
       return parseInt(number) % 8;
+    },
+    winningNotification() {
+      if (this.winner == "O") {
+        console.log("masuk sini");
+        alert("Winner is " + this.winner);
+        this.stopGame();
+      } else if (this.winner == "Draw") {
+        alert(this.winner);
+        this.stopGame();
+      }
+    },
+  },
+  computed: {
+    searchIndex() {
+      let userIndex;
+      for (let item in this.naturalizationData) {
+        if (
+          this.latestUserMove.indexMatrix ==
+            this.naturalizationData[item].indexMatrix &&
+          this.latestUserMove.indexItem ==
+            this.naturalizationData[item].indexItem
+        ) {
+          userIndex = item;
+        }
+      }
+      return { userIndex };
     },
   },
 };
