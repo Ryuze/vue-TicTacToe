@@ -257,7 +257,12 @@ export default {
                 this.moveSanitazion(this.latestComputerMove.index + 4)
               );
             }
+            break;
           }
+          default:
+            alert("Something went wrong");
+            this.stopGame();
+            break;
         }
       }
     },
@@ -289,7 +294,6 @@ export default {
     },
     winningNotification() {
       if (this.winner == "O") {
-        console.log("masuk sini");
         alert("Winner is " + this.winner);
         this.stopGame();
       } else if (this.winner == "Draw") {
